@@ -1,10 +1,145 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<module type="PYTHON_MODULE" version="4">
-  <component name="NewModuleRootManager">
-    <content url="file://$MODULE_DIR$">
-      <excludeFolder url="file://$MODULE_DIR$/venv" />
-    </content>
-    <orderEntry type="inheritedJdk" />
-    <orderEntry type="sourceFolder" forTests="false" />
-  </component>
-</module>
+import random
+import webbrowser
+import datetime
+import tkinter as tk
+import pybrightness
+
+class BotInterface(tk.Tk):
+    def __init__(self):
+        super().__init__()
+        self.title("Чат-бот")
+        self.geometry("500x400")
+        self.configure(bg="white")
+
+        self.create_widgets()
+
+    def create_widgets(self):
+        self.chat_log = tk.Listbox(self, bg="lightgray", fg="black", height=20, width=60)
+        self.chat_log.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+        self.input_frame = tk.Frame(self, bg="white")
+        self.input_frame.pack(fill=tk.BOTH, padx=10, pady=5)
+
+        self.input_entry = tk.Entry(self.input_frame, bg="white", fg="black", width=40)
+        self.input_entry.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self.input_entry.bind("<Return>", self.handle_enter_key)
+
+        self.send_button = tk.Button(self.input_frame, text="Отправить", bg="blue", fg="white", command=self.handle_input)
+        self.send_button.pack(side=tk.RIGHT, padx=5, pady=2)
+
+    def handle_input(self):
+        user_input = self.input_entry.get().strip()
+        if user_input:
+            self.display_user_message(user_input)
+            response = respond_to_question(user_input)
+            self.display_bot_message(response)
+            self.input_entry.delete(0, tk.END)
+
+    def handle_enter_key(self, event):
+        self.handle_input()
+
+    def display_user_message(self, message):
+        self.chat_log.insert(tk.END, "Вы: " + message)
+        self.chat_log.itemconfig(tk.END, {'fg': 'blue'})
+
+    def display_bot_message(self, message):
+        self.chat_log.insert(tk.END, "Бот: " + message)
+        self.chat_log.itemconfig(tk.END, {'fg': 'green'})
+
+def greet():
+    responses = ["Привет! Чем я могу вам помочь?"]
+    return random.choice(responses)
+
+def respond_to_question(question):
+    question = question.lower()
+    if "как дела" in question:
+        return 'У меня всё отлично!'
+    elif "открой гугл" in question:
+        open_website('https://www.google.com/')
+        return 'открываю гугл'
+    elif "открой новости" in question:
+        open_website('https://tengrinews.kz/')
+        return 'открываю новости'
+    elif "открой браузер" in question:
+        open_website('https://www.example.com')
+        return 'открываю браузер'
+    elif "ты кто" in question:
+        return "Я простой ассистент на Python."
+    elif "открой ютуб" in question:
+        open_website('https://www.youtube.com/')
+        return "Открываю YouTube!"
+    elif "включи музыку" in question:
+        open_spotify()
+        return "Включаю музыку на Spotify!"
+    elif "кино" in question:
+        open_movie()
+        return "Открываю фильм!"
+    elif "увеличить яркость" in question:
+        increase_brightness(10)
+        return "Яркость увеличена на 10%."
+    elif "уменьшить яркость" in question:
+        decrease_brightness(10)
+        return "Яркость уменьшена на 10%."
+    elif "сколько сейчас время" in question:
+        return f"Текущее время: {get_current_time()}"
+    elif "какое сегодня число" in question:
+        return f"Сегодня: {get_current_date()}"
+    elif "день недели" in question:
+        return f"Сегодня: {get_current_day_of_week()}"
+    elif "какой год" in question:
+        return f"Текущий год: {get_current_year()}"
+    elif "месяц" in question:
+        return f"Текущий месяц: {get_current_month()}"
+    elif "посчитай" in question or "калькулятор" in question:
+        return calculate()
+    else:
+        return "Извините, я не понимаю ваш вопрос. Могу ли я помочь чем-то еще?"
+
+def open_website(url):
+    webbrowser.open(url)
+
+def get_current_time():
+    return datetime.datetime.now().strftime("%H:%M:%S")
+
+def get_current_date():
+    return datetime.datetime.now().strftime("%d.%m.%Y")
+
+def get_current_day_of_week():
+    days = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"]
+    return days[datetime.datetime.now().weekday()]
+
+def get_current_year():
+    return datetime.datetime.now().strftime("%Y")
+
+def get_current_month():
+    return datetime.datetime.now().strftime("%B")
+
+def calculate():
+    expression = input("Введите математическое выражение: ")
+    try:
+        result = eval(expression)
+        return f"Результат: {result}"
+    except Exception as e:
+        return f"Произошла ошибка при вычислении: {str(e)}"
+
+def open_spotify():
+    url = "https://open.spotify.com/"
+    webbrowser.open(url)
+
+def open_movie():
+    url = "https://hdrezka.ag/films/drama/65155-devushka-millera-2024.htm"
+    webbrowser.open(url)
+
+def increase_brightness(percent):
+    current_brightness = pybrightness.get_brightness()
+    new_brightness = min(current_brightness + percent, 100)
+    pybrightness.set_brightness(new_brightness)
+
+def decrease_brightness(percent):
+    current_brightness = pybrightness.get_brightness()
+    new_brightness = max(current_brightness - percent, 0)
+    pybrightness.set_brightness(new_brightness)
+
+if __name__ == "__main__":
+    app = BotInterface()
+    app.mainloop()
